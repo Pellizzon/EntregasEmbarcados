@@ -36,13 +36,13 @@ typedef struct  {
 
 volatile char flag_tc = 0;
 volatile char flag_tc0 = 0;
+volatile char flag_tc2 = 0;
 volatile Bool f_rtt_alarme = false;
 volatile char flag_rtc = 0;
 
 void LED_init(void);
 void TC_init(Tc * TC, int ID_TC, int TC_CHANNEL, int freq);
 void pin_toggle(Pio *pio, uint32_t mask);
-void io_init(void);
 static void RTT_init(uint16_t pllPreScale, uint32_t IrqNPulses);
 void RTC_init(Rtc *rtc, uint32_t id_rtc, calendar t, uint32_t irq_type);
 void pisca_led3(int n, int t);
@@ -186,6 +186,21 @@ void TC0_Handler(void){
 	flag_tc0 = 1;
 }
 
+void TC2_Handler(void){
+	volatile uint32_t ul_dummy;
+
+	/****************************************************************
+	* Devemos indicar ao TC que a interrupção foi satisfeita.
+	******************************************************************/
+	ul_dummy = tc_get_status(TC0, 2);
+
+	/* Avoid compiler warning */
+	UNUSED(ul_dummy);
+
+	/** Muda o estado do LED */
+	flag_tc2 = 1;
+}
+
 void pisca_led(int n, int t){
 	for (int i=0;i<n;i++){
 		pio_clear(LED_PIO, LED_IDX_MASK);
@@ -243,10 +258,6 @@ void LEDs_init(void){
 	pio_configure(LED3_PIO, PIO_OUTPUT_0, LED3_IDX_MASK, PIO_DEFAULT);
 };
 
-init() {
-	
-}
-
 int main (void)
 {
 	board_init();
@@ -259,6 +270,8 @@ int main (void)
 
 	TC_init(TC0, ID_TC1, 1, 4);
 	TC_init(TC0, ID_TC0, 0, 5);
+	TC_init(TC0, ID_TC2, 2, 1);
+	
   // Init OLED
 	gfx_mono_ssd1306_init();
   
@@ -271,10 +284,16 @@ int main (void)
 
 	/* configura alarme do RTC */
 	rtc_set_date_alarm(RTC, 1, rtc_initial.month, 1, rtc_initial.day);
-	rtc_set_time_alarm(RTC, 1, rtc_initial.hour, 1, rtc_initial.minute, 1, rtc_initial.seccond + 20);	
+	rtc_set_time_alarm(RTC, 1, rtc_initial.hour, 1, rtc_initial.minute, 1, rtc_initial.seccond + 20);
+	
+	uint32_t h, m, s;
+	char timeBuffer[512];
 
   /* Insert application code here, after the board has been initialized. */
 	while(1) {
+		
+		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
+		
 		if(flag_tc){
 			pisca_led1(1, 10);
 			flag_tc = 0;
@@ -283,6 +302,14 @@ int main (void)
 		if(flag_tc0) {
 			pisca_led(1, 10);
 			flag_tc0 = 0;
+		}
+		
+		if(flag_tc2){
+			rtc_get_time(RTC, &h, &m, &s);
+			sprintf(timeBuffer, "%2d:%2d:%2d", h, m, s);
+			
+			gfx_mono_draw_string(timeBuffer, 50, 16, &sysfont);
+			flag_tc2=0;
 		}
 		
 		if (f_rtt_alarme){
