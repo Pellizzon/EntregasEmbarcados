@@ -35,6 +35,7 @@ typedef struct  {
 #define LED_IDX_MASK (1 << LED_PIN)
 
 volatile char flag_tc = 0;
+volatile char IRQgerado = 0;
 volatile char flag_tc0 = 0;
 volatile char flag_tc2 = 0;
 volatile Bool f_rtt_alarme = false;
@@ -57,6 +58,12 @@ void RTC_Handler(void)
 	*  na interrupcao, se foi por segundo
 	*  ou Alarm
 	*/
+	
+	if ((ul_status & RTC_SR_SEC) == RTC_SR_SEC) {
+
+		IRQgerado = 1;
+		rtc_clear_status(RTC, RTC_SCCR_SECCLR);
+	}
 	if ((ul_status & RTC_SR_SEC) == RTC_SR_SEC) {
 		rtc_clear_status(RTC, RTC_SCCR_SECCLR);
 	}
@@ -280,7 +287,7 @@ int main (void)
 	gfx_mono_draw_string("mundo", 50,16, &sysfont);
 
 	calendar rtc_initial = {2018, 3, 19, 12, 15, 45 ,1};
-	RTC_init(RTC, ID_RTC, rtc_initial, RTC_IER_ALREN);
+	RTC_init(RTC, ID_RTC, rtc_initial, RTC_IER_ALREN | RTC_IER_SECEN);
 
 	/* configura alarme do RTC */
 	rtc_set_date_alarm(RTC, 1, rtc_initial.month, 1, rtc_initial.day);
@@ -304,12 +311,12 @@ int main (void)
 			flag_tc0 = 0;
 		}
 		
-		if(flag_tc2){
+		if(IRQgerado){
 			rtc_get_time(RTC, &h, &m, &s);
 			sprintf(timeBuffer, "%2d:%2d:%2d", h, m, s);
 			
 			gfx_mono_draw_string(timeBuffer, 50, 16, &sysfont);
-			flag_tc2=0;
+			IRQgerado=0;
 		}
 		
 		if (f_rtt_alarme){
