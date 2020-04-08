@@ -286,6 +286,8 @@ void task_lcd(void){
 			if (adc.value < 4096/3){
 				ili9488_set_foreground_color(COLOR_CONVERT(COLOR_GREEN));
 				ili9488_draw_filled_rectangle(0, 0, ILI9488_LCD_WIDTH/3, 200);
+				ili9488_set_foreground_color(COLOR_CONVERT(COLOR_WHITE));
+				ili9488_draw_filled_rectangle(ILI9488_LCD_WIDTH, 0, ILI9488_LCD_WIDTH/3, 200);
 			} else if(adc.value > 2*4096/3) {
 				ili9488_set_foreground_color(COLOR_CONVERT(COLOR_TOMATO));
 				ili9488_draw_filled_rectangle(0, 0, ILI9488_LCD_WIDTH, 200);
@@ -293,6 +295,8 @@ void task_lcd(void){
 			else {
 			ili9488_set_foreground_color(COLOR_CONVERT(COLOR_YELLOW));
 			ili9488_draw_filled_rectangle(0, 0, 2*ILI9488_LCD_WIDTH/3, 200);
+			ili9488_set_foreground_color(COLOR_CONVERT(COLOR_WHITE));
+			ili9488_draw_filled_rectangle(ILI9488_LCD_WIDTH, 0, 2*ILI9488_LCD_WIDTH/3, 200);
 			}
 		}
 	}
