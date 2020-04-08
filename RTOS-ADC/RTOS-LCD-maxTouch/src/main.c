@@ -268,7 +268,8 @@ void task_lcd(void){
 	// strut local para armazenar msg enviada pela task do mxt
 	touchData touch;
 	adcData adc;
-
+	int t, x, y;
+	
 	while (true) {
 		if (xQueueReceive( xQueueTouch, &(touch), ( TickType_t )  100 / portTICK_PERIOD_MS)) {
 			printf("Touch em: x:%d y:%d\n", touch.x, touch.y);
@@ -282,7 +283,17 @@ void task_lcd(void){
 			sprintf(b, "%4d", adc.value);
 			font_draw_text(&arial_72, b, 50, 200, 2);
 			
-			ili9488_draw_filled_circle(200, 50, 50);
+			if (adc.value < 4096/3){
+				ili9488_set_foreground_color(COLOR_CONVERT(COLOR_GREEN));
+				ili9488_draw_filled_rectangle(0, 0, ILI9488_LCD_WIDTH/3, 200);
+			} else if(adc.value > 2*4096/3) {
+				ili9488_set_foreground_color(COLOR_CONVERT(COLOR_TOMATO));
+				ili9488_draw_filled_rectangle(0, 0, ILI9488_LCD_WIDTH, 200);
+			}
+			else {
+			ili9488_set_foreground_color(COLOR_CONVERT(COLOR_YELLOW));
+			ili9488_draw_filled_rectangle(0, 0, 2*ILI9488_LCD_WIDTH/3, 200);
+			}
 		}
 	}
 }
