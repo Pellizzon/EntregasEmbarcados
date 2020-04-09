@@ -80,7 +80,7 @@ static void config_AFEC_pot(Afec *afec, uint32_t afec_id, uint32_t afec_channel,
   /* Configura trigger por software */
   afec_set_trigger(afec, AFEC_TRIG_SW);
 
-  /*** Configuracao específica do canal AFEC ***/
+  /*** Configuracao especÃ­fica do canal AFEC ***/
   struct afec_ch_config afec_ch_cfg;
   afec_ch_get_config_defaults(&afec_ch_cfg);
   afec_ch_cfg.gain = AFEC_GAINVALUE_0;
@@ -280,7 +280,7 @@ void task_lcd(void){
 		// e imprime no LCD o dado
 		if (xQueueReceive( xQueueADC, &(adc), ( TickType_t )  100 / portTICK_PERIOD_MS)) {
 			char b[512];
-			sprintf(b, "%4d", adc.value);
+			sprintf(b, "%04d", adc.value);
 			font_draw_text(&arial_72, b, 50, 200, 2);
 			
 			if (adc.value < 4096/3){
@@ -310,7 +310,7 @@ void task_adc(void){
 	
 	config_AFEC_pot(AFEC_POT, AFEC_POT_ID, AFEC_POT_CHANNEL, AFEC_pot_Callback);
 
-	/* Selecina canal e inicializa conversão */
+	/* Selecina canal e inicializa conversÃ£o */
 	afec_channel_enable(AFEC_POT, AFEC_POT_CHANNEL);
 	afec_start_software_conversion(AFEC_POT);
 	
@@ -328,7 +328,7 @@ void task_adc(void){
 
 			vTaskDelay(500);
 
-			/* Selecina canal e inicializa conversão */
+			/* Selecina canal e inicializa conversÃ£o */
 			afec_channel_enable(AFEC_POT, AFEC_POT_CHANNEL);
 			afec_start_software_conversion(AFEC_POT);
 		}
