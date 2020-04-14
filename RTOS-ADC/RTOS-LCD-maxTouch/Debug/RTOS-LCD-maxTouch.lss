@@ -10164,7 +10164,7 @@ __STATIC_INLINE void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
   404050:	2302      	movs	r3, #2
   404052:	6023      	str	r3, [r4, #0]
 
-	/* Selecina canal e inicializa convers„o */
+	/* Selecina canal e inicializa convers√£o */
 	afec_channel_enable(AFEC_POT, AFEC_POT_CHANNEL);
 	afec_start_software_conversion(AFEC_POT);
 	
@@ -10534,7 +10534,7 @@ static inline void usart_serial_getchar(usart_if p_usart, uint8_t *data)
   40429a:	4798      	blx	r3
   40429c:	e7fe      	b.n	40429c <vApplicationStackOverflowHook+0xc>
   40429e:	bf00      	nop
-  4042a0:	0042368c 	.word	0x0042368c
+  4042a0:	00423690 	.word	0x00423690
   4042a4:	004046d1 	.word	0x004046d1
 
 004042a8 <vApplicationTickHook>:
@@ -10692,17 +10692,17 @@ void task_lcd(void){
   4043ac:	4b2f      	ldr	r3, [pc, #188]	; (40446c <task_lcd+0x124>)
   4043ae:	4798      	blx	r3
   4043b0:	e7eb      	b.n	40438a <task_lcd+0x42>
-			sprintf(b, "%4d", adc.value);
+			sprintf(b, "%04d", adc.value);
   4043b2:	9a83      	ldr	r2, [sp, #524]	; 0x20c
   4043b4:	492e      	ldr	r1, [pc, #184]	; (404470 <task_lcd+0x128>)
   4043b6:	a803      	add	r0, sp, #12
   4043b8:	4b2e      	ldr	r3, [pc, #184]	; (404474 <task_lcd+0x12c>)
   4043ba:	4798      	blx	r3
-			font_draw_text(&arial_72, b, 50, 200, 2);
+			font_draw_text(&arial_72, b, 75, 200, 2);
   4043bc:	2302      	movs	r3, #2
   4043be:	9300      	str	r3, [sp, #0]
   4043c0:	23c8      	movs	r3, #200	; 0xc8
-  4043c2:	2232      	movs	r2, #50	; 0x32
+  4043c2:	224b      	movs	r2, #75	; 0x4b
   4043c4:	a903      	add	r1, sp, #12
   4043c6:	482c      	ldr	r0, [pc, #176]	; (404478 <task_lcd+0x130>)
   4043c8:	4c2c      	ldr	r4, [pc, #176]	; (40447c <task_lcd+0x134>)
@@ -12633,9 +12633,9 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   4056bc:	930f      	str	r3, [sp, #60]	; 0x3c
   4056be:	f89a 3000 	ldrb.w	r3, [sl]
   4056c2:	e5a3      	b.n	40520c <_svfprintf_r+0xb0>
-  4056c4:	004236ec 	.word	0x004236ec
-  4056c8:	004236fc 	.word	0x004236fc
-  4056cc:	004236cc 	.word	0x004236cc
+  4056c4:	004236f0 	.word	0x004236f0
+  4056c8:	00423700 	.word	0x00423700
+  4056cc:	004236d0 	.word	0x004236d0
   4056d0:	f04b 0b10 	orr.w	fp, fp, #16
   4056d4:	f01b 0f20 	tst.w	fp, #32
   4056d8:	9311      	str	r3, [sp, #68]	; 0x44
@@ -12965,13 +12965,13 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   405a50:	f8dd b030 	ldr.w	fp, [sp, #48]	; 0x30
   405a54:	9c0b      	ldr	r4, [sp, #44]	; 0x2c
   405a56:	e013      	b.n	405a80 <_svfprintf_r+0x924>
-  405a58:	004236cc 	.word	0x004236cc
-  405a5c:	004236b8 	.word	0x004236b8
+  405a58:	004236d0 	.word	0x004236d0
+  405a5c:	004236bc 	.word	0x004236bc
   405a60:	7fefffff 	.word	0x7fefffff
-  405a64:	004236ac 	.word	0x004236ac
-  405a68:	004236a8 	.word	0x004236a8
-  405a6c:	004236e8 	.word	0x004236e8
-  405a70:	004236fc 	.word	0x004236fc
+  405a64:	004236b0 	.word	0x004236b0
+  405a68:	004236ac 	.word	0x004236ac
+  405a6c:	004236ec 	.word	0x004236ec
+  405a70:	00423700 	.word	0x00423700
   405a74:	f108 0808 	add.w	r8, r8, #8
   405a78:	3e10      	subs	r6, #16
   405a7a:	2e10      	cmp	r6, #16
@@ -13289,7 +13289,7 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   405d8c:	f04f 0b10 	mov.w	fp, #16
   405d90:	9c0c      	ldr	r4, [sp, #48]	; 0x30
   405d92:	e006      	b.n	405da2 <_svfprintf_r+0xc46>
-  405d94:	004236fc 	.word	0x004236fc
+  405d94:	00423700 	.word	0x00423700
   405d98:	3e10      	subs	r6, #16
   405d9a:	2e10      	cmp	r6, #16
   405d9c:	f108 0808 	add.w	r8, r8, #8
@@ -13703,8 +13703,8 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   406182:	46c8      	mov	r8, r9
   406184:	e458      	b.n	405a38 <_svfprintf_r+0x8dc>
   406186:	bf00      	nop
-  406188:	004236fc 	.word	0x004236fc
-  40618c:	004236e8 	.word	0x004236e8
+  406188:	00423700 	.word	0x00423700
+  40618c:	004236ec 	.word	0x004236ec
   406190:	2140      	movs	r1, #64	; 0x40
   406192:	980c      	ldr	r0, [sp, #48]	; 0x30
   406194:	f7fe fab8 	bl	404708 <_malloc_r>
@@ -14080,10 +14080,10 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   406524:	e5b6      	b.n	406094 <_svfprintf_r+0xf38>
   406526:	bf00      	nop
   406528:	66666667 	.word	0x66666667
-  40652c:	004236e0 	.word	0x004236e0
-  406530:	004236fc 	.word	0x004236fc
-  406534:	004236b4 	.word	0x004236b4
-  406538:	004236b0 	.word	0x004236b0
+  40652c:	004236e4 	.word	0x004236e4
+  406530:	00423700 	.word	0x00423700
+  406534:	004236b8 	.word	0x004236b8
+  406538:	004236b4 	.word	0x004236b4
   40653c:	9b0a      	ldr	r3, [sp, #40]	; 0x28
   40653e:	b913      	cbnz	r3, 406546 <_svfprintf_r+0x13ea>
   406540:	f01b 0f01 	tst.w	fp, #1
@@ -14718,10 +14718,10 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   406c28:	f043 0310 	orrne.w	r3, r3, #16
   406c2c:	e576      	b.n	40671c <_vfiprintf_r+0xe4>
   406c2e:	bf00      	nop
-  406c30:	0042370c 	.word	0x0042370c
-  406c34:	0042371c 	.word	0x0042371c
-  406c38:	004236cc 	.word	0x004236cc
-  406c3c:	004236b8 	.word	0x004236b8
+  406c30:	00423710 	.word	0x00423710
+  406c34:	00423720 	.word	0x00423720
+  406c38:	004236d0 	.word	0x004236d0
+  406c3c:	004236bc 	.word	0x004236bc
   406c40:	9907      	ldr	r1, [sp, #28]
   406c42:	680e      	ldr	r6, [r1, #0]
   406c44:	460a      	mov	r2, r1
@@ -15144,8 +15144,8 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   40705c:	d19e      	bne.n	406f9c <_vfiprintf_r+0x964>
   40705e:	46ca      	mov	sl, r9
   407060:	f7ff bbc0 	b.w	4067e4 <_vfiprintf_r+0x1ac>
-  407064:	0042371c 	.word	0x0042371c
-  407068:	0042370c 	.word	0x0042370c
+  407064:	00423720 	.word	0x00423720
+  407068:	00423710 	.word	0x00423710
   40706c:	3104      	adds	r1, #4
   40706e:	6816      	ldr	r6, [r2, #0]
   407070:	9107      	str	r1, [sp, #28]
@@ -15383,8 +15383,8 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   4072b8:	f88d 5037 	strb.w	r5, [sp, #55]	; 0x37
   4072bc:	e469      	b.n	406b92 <_vfiprintf_r+0x55a>
   4072be:	bf00      	nop
-  4072c0:	0042370c 	.word	0x0042370c
-  4072c4:	004236e0 	.word	0x004236e0
+  4072c0:	00423710 	.word	0x00423710
+  4072c4:	004236e4 	.word	0x004236e4
 
 004072c8 <__sbprintf>:
   4072c8:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
@@ -15908,12 +15908,12 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   407800:	509f79fb 	.word	0x509f79fb
   407804:	3fd34413 	.word	0x3fd34413
   407808:	7ff00000 	.word	0x7ff00000
-  40780c:	004236e9 	.word	0x004236e9
-  407810:	0042372c 	.word	0x0042372c
-  407814:	00423738 	.word	0x00423738
+  40780c:	004236ed 	.word	0x004236ed
+  407810:	00423730 	.word	0x00423730
+  407814:	0042373c 	.word	0x0042373c
   407818:	3ff80000 	.word	0x3ff80000
   40781c:	00423778 	.word	0x00423778
-  407820:	004236e8 	.word	0x004236e8
+  407820:	004236ec 	.word	0x004236ec
   407824:	40240000 	.word	0x40240000
   407828:	f002 fcee 	bl	40a208 <__aeabi_dmul>
   40782c:	2200      	movs	r2, #0
@@ -19683,7 +19683,7 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   409c9a:	e8bd 83f8 	ldmia.w	sp!, {r3, r4, r5, r6, r7, r8, r9, pc}
   409c9e:	bf00      	nop
   409ca0:	20400850 	.word	0x20400850
-  409ca4:	004236a4 	.word	0x004236a4
+  409ca4:	004236a8 	.word	0x004236a8
   409ca8:	004046f9 	.word	0x004046f9
 
 00409cac <_calloc_r>:
@@ -27366,31 +27366,30 @@ static inline void sysclk_enable_peripheral_clock(uint32_t ul_id)
   42364c:	00000000 686c6166 6d652061 69726320     ....falha em cri
   42365c:	6f207261 6d657320 726f6661 000a206f     ar o semaforo ..
   42366c:	000a6425 63756f54 6d652068 3a78203a     %d..Touch em: x:
-  42367c:	79206425 0a64253a 00000000 00643425     %d y:%d.....%4d.
-  42368c:	63617473 766f206b 6c667265 2520776f     stack overflow %
-  42369c:	73252078 00000a0d                       x %s....
+  42367c:	79206425 0a64253a 00000000 64343025     %d y:%d.....%04d
+  42368c:	00000000 63617473 766f206b 6c667265     ....stack overfl
+  42369c:	2520776f 73252078 00000a0d              ow %x %s....
 
-004236a4 <_global_impure_ptr>:
-  4236a4:	20400018 00464e49 00666e69 004e414e     ..@ INF.inf.NAN.
-  4236b4:	006e616e 33323130 37363534 42413938     nan.0123456789AB
-  4236c4:	46454443 00000000 33323130 37363534     CDEF....01234567
-  4236d4:	62613938 66656463 00000000 6c756e28     89abcdef....(nul
-  4236e4:	0000296c 00000030                       l)..0...
+004236a8 <_global_impure_ptr>:
+  4236a8:	20400018 00464e49 00666e69 004e414e     ..@ INF.inf.NAN.
+  4236b8:	006e616e 33323130 37363534 42413938     nan.0123456789AB
+  4236c8:	46454443 00000000 33323130 37363534     CDEF....01234567
+  4236d8:	62613938 66656463 00000000 6c756e28     89abcdef....(nul
+  4236e8:	0000296c 00000030                       l)..0...
 
-004236ec <blanks.7223>:
-  4236ec:	20202020 20202020 20202020 20202020                     
+004236f0 <blanks.7223>:
+  4236f0:	20202020 20202020 20202020 20202020                     
 
-004236fc <zeroes.7224>:
-  4236fc:	30303030 30303030 30303030 30303030     0000000000000000
+00423700 <zeroes.7224>:
+  423700:	30303030 30303030 30303030 30303030     0000000000000000
 
-0042370c <blanks.7217>:
-  42370c:	20202020 20202020 20202020 20202020                     
+00423710 <blanks.7217>:
+  423710:	20202020 20202020 20202020 20202020                     
 
-0042371c <zeroes.7218>:
-  42371c:	30303030 30303030 30303030 30303030     0000000000000000
-  42372c:	69666e49 7974696e 00000000 004e614e     Infinity....NaN.
-  42373c:	00000043 49534f50 00000058 0000002e     C...POSIX.......
-  42374c:	00000000                                ....
+00423720 <zeroes.7218>:
+  423720:	30303030 30303030 30303030 30303030     0000000000000000
+  423730:	69666e49 7974696e 00000000 004e614e     Infinity....NaN.
+  423740:	00000043 49534f50 00000058 0000002e     C...POSIX.......
 
 00423750 <__mprec_bigtens>:
   423750:	37e08000 4341c379 b5056e17 4693b8b5     ...7y.AC.n.....F
@@ -27577,7 +27576,7 @@ void portable_delay_cycles(unsigned long n)
 20400914:	0043 0000 0000 0000 0000 0000 0000 0000     C...............
 	...
 20400934:	9ba1 0040 8e39 0040 0000 0000 384c 0042     ..@.9.@.....L8B.
-20400944:	3748 0042 364c 0042 364c 0042 364c 0042     H7B.L6B.L6B.L6B.
+20400944:	374c 0042 364c 0042 364c 0042 364c 0042     L7B.L6B.L6B.L6B.
 20400954:	364c 0042 364c 0042 364c 0042 364c 0042     L6B.L6B.L6B.L6B.
 20400964:	364c 0042 364c 0042 ffff ffff ffff ffff     L6B.L6B.........
 20400974:	ffff ffff ffff 0000 0001 5341 4943 0049     ..........ASCII.

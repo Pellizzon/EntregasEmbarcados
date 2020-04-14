@@ -281,7 +281,7 @@ void task_lcd(void){
 		if (xQueueReceive( xQueueADC, &(adc), ( TickType_t )  100 / portTICK_PERIOD_MS)) {
 			char b[512];
 			sprintf(b, "%04d", adc.value);
-			font_draw_text(&arial_72, b, 50, 200, 2);
+			font_draw_text(&arial_72, b, 75, 200, 2);
 			
 			if (adc.value < 4096/3){
 				ili9488_set_foreground_color(COLOR_CONVERT(COLOR_GREEN));
