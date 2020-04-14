@@ -97,7 +97,6 @@ void TC0_Handler(void){
 	/* Avoid compiler warning */
 	UNUSED(ul_dummy);
 
-	/** Muda o estado do LED */
 	flag_tc0 = 1;
 }
 
@@ -112,7 +111,6 @@ void TC1_Handler(void){
 	/* Avoid compiler warning */
 	UNUSED(ul_dummy);
 
-	/** Muda o estado do LED */
 	flag_tc1 = 1;
 }
 
@@ -127,7 +125,6 @@ void TC2_Handler(void){
 	/* Avoid compiler warning */
 	UNUSED(ul_dummy);
 
-	/** Muda o estado do LED */
 	flag_tc2 = 1;
 }
 
@@ -300,12 +297,12 @@ int main (void)
 	 // Init OLED
 	gfx_mono_ssd1306_init();
 	
-	// Escreve na tela um circulo e um texto
-	//gfx_mono_draw_filled_circle(50, 4, 4, GFX_PIXEL_SET, GFX_WHOLE);
-	//gfx_mono_draw_string("5 10 1", 10, 0, &sysfont);
+	//Escreve frequencia dos leds na tela
+	//gfx_mono_draw_string("5/10/1", 80, 16, &sysfont);
 	
 	calendar rtc_initial = {2020, 4, 5, 12, 15, 19 , 1};
 	RTC_init(RTC, ID_RTC, rtc_initial, RTC_IER_ALREN | RTC_IER_SECEN);
+	rtc_set_hour_mode(RTC, 0);
 
 	/* configura alarme do RTC */
 	rtc_set_date_alarm(RTC, 1, rtc_initial.month, 1, rtc_initial.day);
@@ -316,6 +313,10 @@ int main (void)
 	
 	int t = 10;
 	
+	int counter = 0;
+	char stringCounter[10][11] = {"*---------", "**--------", "***-------", "****------", "*****-----", 
+								  "******----", "*******---", "********--", "*********-", "**********"};
+	
 	/* Insert application code here, after the board has been initialized. */
 	while(1) {
 		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
@@ -324,13 +325,17 @@ int main (void)
 			rtc_get_time(RTC, &h, &m, &s);
 			sprintf(timeBuffer, "%2d:%2d:%2d", h, m, s);
 			
-			gfx_mono_draw_string(timeBuffer, 10, 16, &sysfont);
+			gfx_mono_draw_string(timeBuffer, 0, 16, &sysfont);
 			flag_rtc = 0;
 		}
 		
 		if (rtt_irq) {
-			gfx_mono_draw_string("*", t, 0, &sysfont);
-			t += 10;
+			gfx_mono_draw_string(stringCounter[counter], 0, 0, &sysfont);
+			
+			counter += 1;
+			if (counter > 9) {
+				counter = 0;
+			}
 			rtt_irq = 0;
 		}
 		
@@ -344,8 +349,6 @@ int main (void)
       
 		  // reinicia RTT para gerar um novo IRQ
 		  RTT_init(pllPreScale, irqRTTvalue);
-		  t = 10;
-		  gfx_mono_generic_draw_filled_rect(0, 0, 120, 16, GFX_PIXEL_CLR);
       
 		  f_rtt_alarme = false;
 		}
