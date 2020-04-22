@@ -775,6 +775,15 @@
     <Compile Include="src\digital521.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\image.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\image1.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\image2.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\maxTouch\maxTouch.c">
       <SubType>compile</SubType>
     </Compile>
