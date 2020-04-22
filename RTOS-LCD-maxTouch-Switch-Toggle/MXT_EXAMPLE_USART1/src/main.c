@@ -8,23 +8,6 @@
 #include "tfont.h"
 #include "digital521.h"
 
-typedef struct {
-	uint32_t width;     // largura (px)
-	uint32_t height;    // altura  (px)
-	uint32_t border;
-	uint32_t colorOn;   // cor do botão acionado
-	uint32_t colorOff;  // cor do botão desligado
-	uint32_t x;         // posicao x
-	uint32_t y;         // posicao y
-	uint8_t status;
-} t_but;
-
-/************************************************************************/
-/* prototypes                                                           */
-/************************************************************************/
-void but1_callback(void);
-
-
 /************************************************************************/
 /* LCD + TOUCH                                                          */
 /************************************************************************/
@@ -56,6 +39,18 @@ typedef struct {
   uint y;
 } touchData;
 
+typedef struct {
+	uint32_t width;     // largura (px)
+	uint32_t border;    // borda (px)
+	uint32_t height;    // altura  (px)
+	uint32_t colorOn;   // cor do bot?o acionado
+	uint32_t colorOff;  // cor do bot?o desligado
+	uint32_t x;         // posicao x
+	uint32_t y;         // posicao y
+	uint8_t status;
+	void (*callback)(t_but);
+} t_but;
+
 QueueHandle_t xQueueTouch;
 
 /************************************************************************/
@@ -70,9 +65,7 @@ QueueHandle_t xQueueTouch;
 /**
 * \brief Called if stack overflow during execution
 */
-extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
-signed char *pcTaskName)
-{
+extern void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
   printf("stack overflow %x %s\r\n", pxTask, (portCHAR *)pcTaskName);
   /* If the parameters have been corrupted then inspect pxCurrentTCB to
   * identify which task has overflowed its stack.
@@ -84,20 +77,17 @@ signed char *pcTaskName)
 /**
 * \brief This function is called by FreeRTOS idle task
 */
-extern void vApplicationIdleHook(void)
-{
+extern void vApplicationIdleHook(void) {
   pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 }
 
 /**
 * \brief This function is called by FreeRTOS each tick
 */
-extern void vApplicationTickHook(void)
-{
+extern void vApplicationTickHook(void) {
 }
 
-extern void vApplicationMallocFailedHook(void)
-{
+extern void vApplicationMallocFailedHook(void) {
   /* Called if a call to pvPortMalloc() fails because there is insufficient
   free memory available in the FreeRTOS heap.  pvPortMalloc() is called
   internally by FreeRTOS API functions that create tasks, queues, software
@@ -112,7 +102,7 @@ extern void vApplicationMallocFailedHook(void)
 /* init                                                                 */
 /************************************************************************/
 
-static void configure_lcd(void){
+static void configure_lcd(void) {
   /* Initialize display parameter */
   g_ili9488_display_opt.ul_width = ILI9488_LCD_WIDTH;
   g_ili9488_display_opt.ul_height = ILI9488_LCD_HEIGHT;
@@ -126,6 +116,17 @@ static void configure_lcd(void){
 /************************************************************************/
 /* funcoes                                                              */
 /************************************************************************/
+int process_touch(t_but botoes[], touchData touch, uint32_t n){
+	for (int i = 0; i < n; i++) {
+		if (touch.x >= botoes[i].x - botoes[i].width/2 && touch.x <= botoes[i].x + botoes[i].width/2) {
+			if (touch.y >= botoes[i].y - botoes[i].height/2 && touch.y <= botoes[i].y + botoes[i].height/2) {
+				return i;
+			}
+		}
+	}
+	
+	return -1;
+}
 
 void draw_button_new(t_but but){
 	uint32_t color;
@@ -232,19 +233,20 @@ void mxt_handler(struct mxt_device *device, uint *x, uint *y)
   } while ((mxt_is_message_pending(device)) & (i < MAX_ENTRIES));
 }
 
-
-int process_touch(t_but botoes[], touchData touch, uint32_t n){
-	for (int i = 0; i < n; i++) {
-		if (touch.x >= botoes[i].x - botoes[i].width/2 && touch.x <= botoes[i].x + botoes[i].width/2) {
-			if (touch.y >= botoes[i].y - botoes[i].height/2 && touch.y <= botoes[i].y + botoes[i].height/2) {
-				return i;
-			}
-		}
-	}
-	
-	return -1;
+void but0_callback(t_but *but) {
+	but->status = !but->status;
+	draw_button_new(*but);
 }
 
+void but1_callback(t_but *but) {
+	but->status = !but->status;
+	draw_button_new(*but);
+}
+
+void but2_callback(t_but *but) {
+	but->status = !but->status;
+	draw_button_new(*but);
+}
 /************************************************************************/
 /* tasks                                                                */
 /************************************************************************/
@@ -282,34 +284,42 @@ void task_lcd(void){
 
 	t_but but0 = {.width = 120, .height = 75, .border = 2,
 		.colorOn = COLOR_TOMATO, .colorOff = COLOR_BLACK,
-	.x = ILI9488_LCD_WIDTH/2, .y = 340, .status = 1};
+	.x = ILI9488_LCD_WIDTH/2, .y = 340, .status = 1, .callback = &but0_callback};
+	draw_button_new(but0);
 	
 	t_but but1 = {.width = 120, .height = 75, .border = 2,
 		.colorOn = COLOR_INDIGO, .colorOff = COLOR_BLACK,
-	.x = ILI9488_LCD_WIDTH/2, .y = 140, .status = 1};
+	.x = ILI9488_LCD_WIDTH/2, .y = 140, .status = 1, .callback = &but1_callback};
+	draw_button_new(but1);
 	
 	t_but but2 = {.width = 120, .height = 75, .border = 2,
 		.colorOn = COLOR_SNOW, .colorOff = COLOR_BLACK,
-	.x = ILI9488_LCD_WIDTH/2, .y = 240, .status = 1};
+	.x = ILI9488_LCD_WIDTH/2, .y = 240, .status = 1, .callback = &but2_callback};
+	draw_button_new(but2);
 
 	t_but botoes[] = {but0, but1, but2};
-	for (int i = 0; i < 3; i++) {
-		draw_button_new(botoes[i]);
-	}
 
 	// struct local para armazenar msg enviada pela task do mxt
 	touchData touch;
 
 	while (true) {
-		 if (xQueueReceive( xQueueTouch, &(touch), ( TickType_t )  500 / portTICK_PERIOD_MS)) {
-			 int b = process_touch(botoes, touch, 3);
-			 if(b >= 0){
-				 botoes[b].status = !botoes[b].status;
-				 draw_button_new(botoes[b]);
-			 }
-
-			 printf("x:%d y:%d\n", touch.x, touch.y);
-		 }
+		if (xQueueReceive( xQueueTouch, &(touch), ( TickType_t )  500 / portTICK_PERIOD_MS)) {
+			//update_screen(touch.x, touch.y);
+			//but0.status = !but0.status;
+			//but1.status = !but1.status;
+			//but2.status = !but2.status;
+			//draw_button_new(but0);
+			//draw_button_new(but1);
+			//draw_button_new(but2);
+			int b = process_touch(botoes, touch, 3);
+			printf("b: %d\n", b);
+			if (b >= 0) {
+				botoes[b].callback(&botoes[b]);
+				//botoes[b].status = !botoes[b].status;
+				//draw_button_new(botoes[b]);
+			}
+			printf("x:%d y:%d\n", touch.x, touch.y);
+		}
 	}
 }
 
@@ -317,8 +327,7 @@ void task_lcd(void){
 /* main                                                                 */
 /************************************************************************/
 
-int main(void)
-{
+int main(void) {
   /* Initialize the USART configuration struct */
   const usart_serial_options_t usart_serial_options = {
     .baudrate     = USART_SERIAL_EXAMPLE_BAUDRATE,
