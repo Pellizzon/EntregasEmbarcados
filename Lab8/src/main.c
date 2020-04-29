@@ -189,10 +189,8 @@ static void task_led2(void *pvParameters)
 	{
 		if (xQueueReceive(xQueueLED2, &(i), (TickType_t)500)) {
 			if (i) {
-				pio_clear(LED2_PIO, LED2_IDX_MASK);
-				} else {
-				pio_set(LED2_PIO, LED2_IDX_MASK);
-			}
+				pin_toggle(LED2_PIO, LED2_IDX_MASK);
+			} 
 		}
 	}
 }
@@ -219,10 +217,8 @@ static void task_led3(void *pvParameters)
 	{
 		if (xQueueReceive(xQueueLED3, &(i), (TickType_t)500)) {
 			if (i) {
-				pio_clear(LED3_PIO, LED3_IDX_MASK);
-				} else {
-				pio_set(LED3_PIO, LED3_IDX_MASK);
-			}
+				pin_toggle(LED3_PIO, LED3_IDX_MASK);
+				} 
 		}
 	}
 }
@@ -241,10 +237,8 @@ static void task_led1(void *pvParameters)
 	{
 		if (xQueueReceive(xQueueLED1, &(i), (TickType_t)500)) {
 			if (i) {
-				pio_clear(LED1_PIO, LED1_IDX_MASK);
-			} else {
-				pio_set(LED1_PIO, LED1_IDX_MASK);
-			}
+				pin_toggle(LED1_PIO, LED1_IDX_MASK);
+			} 
 		}
 	}
 }
@@ -354,7 +348,6 @@ static void task_uartRX(void *pvParameters)
 	{
 		if (xQueueReceive(xQueueRx, &rxMSG, (TickType_t)500))
 		{
-			printf("recebeu: %c\n", rxMSG);
 
 			if (rxMSG != '\n')
 			{
