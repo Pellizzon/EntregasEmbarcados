@@ -57,6 +57,9 @@ QueueHandle_t xQueueCommand;
 QueueHandle_t xQueueLED1;
 QueueHandle_t xQueueLED2;
 QueueHandle_t xQueueLED3;
+QueueHandle_t xQueueLED1on;
+QueueHandle_t xQueueLED2on;
+QueueHandle_t xQueueLED3on;
 
 // EXECUTE
 #define TASK_EXECUTE_STACK_SIZE (1024 / sizeof(portSTACK_TYPE))
@@ -183,7 +186,9 @@ static void task_led2(void *pvParameters)
 
 	/* Block for 2000ms. */
 	xQueueLED2 = xQueueCreate(5, sizeof(int));
+	xQueueLED2on = xQueueCreate(5, sizeof(int));
 	int i;
+	int on;
 
 	for (;;)
 	{
@@ -191,6 +196,13 @@ static void task_led2(void *pvParameters)
 			if (i) {
 				pin_toggle(LED2_PIO, LED2_IDX_MASK);
 			} 
+		}
+		if (xQueueReceive(xQueueLED2on, &(on), (TickType_t)500)) {
+			if (on) {
+				pio_clear(LED2_PIO, LED2_IDX_MASK);
+				} else {
+				pio_set(LED2_PIO, LED2_IDX_MASK);
+			}
 		}
 	}
 }
@@ -211,14 +223,24 @@ static void task_led3(void *pvParameters)
 
 	/* Block for 2000ms. */
 	xQueueLED3 = xQueueCreate(5, sizeof(int));
+	xQueueLED3on = xQueueCreate(5, sizeof(int));
 	int i;
+	int on;
 
 	for (;;)
 	{
 		if (xQueueReceive(xQueueLED3, &(i), (TickType_t)500)) {
 			if (i) {
 				pin_toggle(LED3_PIO, LED3_IDX_MASK);
-				} 
+			} 
+		}
+		
+		if (xQueueReceive(xQueueLED3on, &(on), (TickType_t)500)) {
+			if (on) {
+				pio_clear(LED3_PIO, LED3_IDX_MASK);
+				} else {
+				pio_set(LED3_PIO, LED3_IDX_MASK);
+			}
 		}
 	}
 }
@@ -231,7 +253,9 @@ static void task_led1(void *pvParameters)
 
 	/* Block for 2000ms. */
 	xQueueLED1 = xQueueCreate(5, sizeof(int));
+	xQueueLED1on = xQueueCreate(5, sizeof(int));
 	int i;
+	int on;
 
 	for (;;)
 	{
@@ -239,6 +263,13 @@ static void task_led1(void *pvParameters)
 			if (i) {
 				pin_toggle(LED1_PIO, LED1_IDX_MASK);
 			} 
+		}
+		if (xQueueReceive(xQueueLED1on, &(on), (TickType_t)500)) {
+			if (on) {
+				pio_clear(LED1_PIO, LED1_IDX_MASK);
+			} else {
+				pio_set(LED1_PIO, LED1_IDX_MASK);
+			}
 		}
 	}
 }
@@ -372,6 +403,8 @@ static void task_execute(void *pvParameters)
 	int led1 = 0;
 	int led2 = 0;
 	int led3 = 0;
+	
+	int on1;
 
 	while (1)
 	{
@@ -380,20 +413,45 @@ static void task_execute(void *pvParameters)
 			printf("comando: %s\n", msgBuffer);
 			
 			if (strcmp(msgBuffer, "led 1 toggle") == 0) {
-				//pin_toggle(LED1_PIO, LED1_IDX_MASK);
 				led1 = !led1;
 				xQueueSend(xQueueLED1, &led1, 0);
 			}
 			
+			if (strcmp(msgBuffer, "led 1 on") == 0) {
+				on1 = 1;
+				xQueueSend(xQueueLED1on, &on1, 0);
+			}
+			if (strcmp(msgBuffer, "led 1 off") == 0) {
+				on1 = 0;
+				xQueueSend(xQueueLED1on, &on1, 0);
+			}
+			
 			if (strcmp(msgBuffer, "led 2 toggle") == 0) {
-				//pin_toggle(LED1_PIO, LED1_IDX_MASK);
 				led2 = !led2;
 				xQueueSend(xQueueLED2, &led2, 0);
+			}
+			
+			if (strcmp(msgBuffer, "led 2 on") == 0) {
+				on1 = 1;
+				xQueueSend(xQueueLED2on, &on1, 0);
+			}
+			if (strcmp(msgBuffer, "led 2 off") == 0) {
+				on1 = 0;
+				xQueueSend(xQueueLED2on, &on1, 0);
 			}
 			
 			if (strcmp(msgBuffer, "led 3 toggle") == 0) {
 				led3 = !led3;
 				xQueueSend(xQueueLED3, &led3, 0);
+			}
+			
+			if (strcmp(msgBuffer, "led 3 on") == 0) {
+				on1 = 1;
+				xQueueSend(xQueueLED3on, &on1, 0);
+			}
+			if (strcmp(msgBuffer, "led 3 off") == 0) {
+				on1 = 0;
+				xQueueSend(xQueueLED3on, &on1, 0);
 			}
 		}
 	}
