@@ -52,6 +52,19 @@ struct ili9488_opt_t g_ili9488_display_opt;
 #define AFEC_POT_ID ID_AFEC1
 #define AFEC_POT_CHANNEL 6 // Canal do pino PC31
 
+#define NUM_TAPS   8  // ordem do filtro (quantos coefientes)
+#define BLOCK_SIZE 1   // se será processado por blocos, no caso não.
+
+const float32_t firCoeffs32[NUM_TAPS] = {
+	0.12269166637219883,
+	0.12466396327768503,
+	0.1259892807712678,
+	0.12665508957884833,
+	0.12665508957884833,
+	0.1259892807712678,
+	0.12466396327768503,
+	0.12269166637219883};
+
 /** The conversion data is done flag */
 volatile bool g_is_conversion_done = false;
 
@@ -317,14 +330,28 @@ void task_lcd(void){
     
     if (xQueueReceive( xQueuePlot, &(plot), ( TickType_t )  100 / portTICK_PERIOD_MS)) {     
       sprintf(buffer, "%04d", plot.raw);
-      	font_draw_text(&calibri_36, buffer, 0, 0, 2);
-
+      font_draw_text(&calibri_36, buffer, 0, 0, 2);
+	  
+	  if (x < ILI9488_LCD_WIDTH) {
+		  ili9488_set_foreground_color(COLOR_CONVERT(COLOR_BLACK));
+		  ili9488_draw_filled_circle(x, ILI9488_LCD_HEIGHT - plot.raw / 16, 2 );
+		  
+		  ili9488_set_foreground_color(COLOR_CONVERT(COLOR_RED));
+		  ili9488_draw_filled_circle(x, ILI9488_LCD_HEIGHT - plot.filtrado/ 16, 2 );
+		  
+		  x += 5;
+	  }
+	  
+	  if (x >= ILI9488_LCD_WIDTH) {
+		  x = 0;
+		  draw_screen();
+	  }
+	  
     }
   }    
 }
 
- void task_adc(void){
-
+void task_adc(void){
     adcData adc;
     t_plot plot;
 
@@ -333,14 +360,27 @@ void task_lcd(void){
     // configura ADC e TC para controlar a leitura
     config_AFEC_pot(AFEC_POT, AFEC_POT_ID, AFEC_POT_CHANNEL, AFEC_pot_Callback);
     TC_init(TC0, ID_TC1, 1, 100);
- 
+	
+	/* Cria buffers para filtragem e faz a inicializacao do filtro. */
+	float32_t firStateF32[BLOCK_SIZE + NUM_TAPS - 1];
+	float32_t inputF32[BLOCK_SIZE + NUM_TAPS - 1];
+	float32_t outputF32[BLOCK_SIZE + NUM_TAPS - 1];
+	arm_fir_instance_f32 S;
+	arm_fir_init_f32(&S, NUM_TAPS, (float32_t *) &firCoeffs32[0], &firStateF32[0], BLOCK_SIZE);
+	int i = 0;
+	
     while(1){
-      
-     if(xQueueReceive( xQueueADC, &(adc), 100)){
-       plot.raw = (int) adc.value;
-       plot.filtrado = (int) adc.value+100;
-       xQueueSend(xQueuePlot, &plot, 0);
-      }
+		if (xQueueReceive( xQueueADC, &(adc), 100)) {
+			if(i <= NUM_TAPS){
+				inputF32[i++] = (float) adc.value;
+			} else {
+				arm_fir_f32(&S, &inputF32[0], &outputF32[0], BLOCK_SIZE);
+				plot.raw = (int) inputF32[0];
+				plot.filtrado = (int) outputF32[0];
+				xQueueSend(xQueuePlot, &plot, 0);
+				i = 0;
+			}
+		}
     }
   }
 
