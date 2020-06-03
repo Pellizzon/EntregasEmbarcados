@@ -101,10 +101,10 @@ extern void vApplicationMallocFailedHook(void){
 
 void but_callback(void)
 {
-BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-printf("but_callback \n");
-xSemaphoreGiveFromISR(xSemaphore, &xHigherPriorityTaskWoken);
-printf("semafaro tx \n");
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+	xSemaphoreGiveFromISR(xSemaphore, &xHigherPriorityTaskWoken);
+	
+	led = !led;
 }
 
 /**
@@ -319,11 +319,7 @@ static void task_process(void *pvParameters) {
 
 		ret = strstr(p_recvMsg->pu8Buffer, needle);
 
-		printf("The substring is: %c\n", ret[7]);
-		if (xSemaphoreTake(xSemaphore, (TickType_t)500) == pdTRUE)
-		{
-			led = !led;
-		}
+		printf("The substring is: %c\n", ret[6]);
 		if (!led) {
 			if (strcmp(ret[7], '1')) {
 				pio_set(LED_PIO, LED_IDX_MASK);
@@ -457,6 +453,12 @@ int main(void)
 
   vTaskStartScheduler();
 
-  while(1) {};
+
+  while(1) {
+	  if (xSemaphoreTake(xSemaphore, (TickType_t)500) == pdTRUE)
+	  {
+		  led = !led;
+	  }
+	  };
   return 0;
 }
