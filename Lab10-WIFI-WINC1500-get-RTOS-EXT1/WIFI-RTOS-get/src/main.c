@@ -48,9 +48,9 @@ static char server_host_name[] = MAIN_SERVER_NAME;
 #define BUT_IDX_MASK (1 << BUT_IDX)
 #define BUT_PRIOR 4
 
-SemaphoreHandle_t xSemaphore;
-
+SemaphoreHandle_t xSemaphoreButton;
 volatile char led = 0;
+
 
 /************************************************************************/
 /* RTOS                                                                 */
@@ -102,9 +102,7 @@ extern void vApplicationMallocFailedHook(void){
 void but_callback(void)
 {
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	xSemaphoreGiveFromISR(xSemaphore, &xHigherPriorityTaskWoken);
-	
-	led = !led;
+	xSemaphoreGiveFromISR(xSemaphoreButton, &xHigherPriorityTaskWoken);
 }
 
 /**
@@ -266,7 +264,8 @@ static void task_process(void *pvParameters) {
   };
 
   enum states state = WAIT;
-  while(1){
+
+  while(1){  
 
     switch(state){
       case WAIT:
@@ -319,7 +318,14 @@ static void task_process(void *pvParameters) {
 
 		ret = strstr(p_recvMsg->pu8Buffer, needle);
 
-		printf("The substring is: %c\n", ret[6]);
+		printf("The substring is: %c\n", ret[7]);
+		
+		if (xSemaphoreTake(xSemaphoreButton, (TickType_t)500) == pdTRUE)
+		{
+			led = !led;
+			printf("\nLED: %d\n", led);
+		}
+		
 		if (!led) {
 			if (strcmp(ret[7], '1')) {
 				pio_set(LED_PIO, LED_IDX_MASK);
@@ -329,7 +335,8 @@ static void task_process(void *pvParameters) {
 				printf("LED nao encontrado");
 			}
 		} else {
-			pio_set(LED_PIO, LED_IDX_MASK);
+			printf("\nacendeu led\n");
+			pio_clear(LED_PIO, LED_IDX_MASK);
 		}
       }
       else {
@@ -423,7 +430,7 @@ void LEDs_init(void){
 	pmc_enable_periph_clk(LED_PIO_ID);
 	pio_set_output(LED_PIO, LED_IDX_MASK, 0, 0, 0);
 	
-	xSemaphore = xSemaphoreCreateBinary();
+	xSemaphoreButton = xSemaphoreCreateBinary();
 
 	pmc_enable_periph_clk(BUT_PIO_ID);
 	pio_configure(BUT_PIO, PIO_INPUT, BUT_IDX_MASK, PIO_PULLUP);
@@ -432,7 +439,7 @@ void LEDs_init(void){
 	NVIC_EnableIRQ(BUT_PIO_ID);
 	NVIC_SetPriority(BUT_PIO_ID, 4); // Prioridade 4
 
-	if (xSemaphore == NULL)
+	if (xSemaphoreButton == NULL)
 		printf("falha em criar o semaforo \n");
 };
 
@@ -455,10 +462,6 @@ int main(void)
 
 
   while(1) {
-	  if (xSemaphoreTake(xSemaphore, (TickType_t)500) == pdTRUE)
-	  {
-		  led = !led;
-	  }
 	  };
   return 0;
 }
