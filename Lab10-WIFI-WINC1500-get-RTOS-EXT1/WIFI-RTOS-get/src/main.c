@@ -50,14 +50,7 @@ static char server_host_name[] = MAIN_SERVER_NAME;
 
 SemaphoreHandle_t xSemaphore;
 
-void but_callback(void)
-{
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	printf("but_callback \n");
-	xSemaphoreGiveFromISR(xSemaphore, &xHigherPriorityTaskWoken);
-	printf("semafaro tx \n");
-}
-
+volatile char led = 0;
 
 /************************************************************************/
 /* RTOS                                                                 */
@@ -105,6 +98,14 @@ extern void vApplicationMallocFailedHook(void){
 /************************************************************************/
 /* callbacks                                                            */
 /************************************************************************/
+
+void but_callback(void)
+{
+BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+printf("but_callback \n");
+xSemaphoreGiveFromISR(xSemaphore, &xHigherPriorityTaskWoken);
+printf("semafaro tx \n");
+}
 
 /**
 * \brief Callback function of IP address.
@@ -243,7 +244,7 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 /* TASKS                                                                */
 /************************************************************************/
 
-void format_get(char p*, char s[]) {
+void format_get(char *p, char s[]) {
 	sprintf(p,"GET %s HTTP/1.1\r\n Accept: */*\r\n\r\n", s);
 }
 
@@ -265,8 +266,6 @@ static void task_process(void *pvParameters) {
   };
 
   enum states state = WAIT;
-  int led = 0;
-
   while(1){
 
     switch(state){
@@ -282,7 +281,7 @@ static void task_process(void *pvParameters) {
       case GET:
       printf("STATE: GET \n");
       //sprintf((char *)g_sendBuffer, MAIN_PREFIX_BUFFER);
-	  format_get(g_sendBuffer, "/status")
+	  format_get(g_sendBuffer, "/status");
       send(tcp_client_socket, g_sendBuffer, strlen((char *)g_sendBuffer), 0);
       state = ACK;
       break;
@@ -446,10 +445,11 @@ int main(void)
   /* Initialize the board. */
   sysclk_init();
   board_init();
-  LEDs_init();
+  
 
   /* Initialize the UART console. */
   configure_console();
+  LEDs_init();
   printf(STRING_HEADER);
 
   xTaskCreate(task_wifi, "Wifi", TASK_WIFI_STACK_SIZE, NULL, TASK_WIFI_PRIORITY, &xHandleWifi);
